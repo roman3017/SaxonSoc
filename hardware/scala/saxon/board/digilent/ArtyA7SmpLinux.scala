@@ -14,7 +14,7 @@ import spinal.lib.bus.bmb.{Bmb, BmbDecoder}
 import spinal.lib.bus.bmb.sim.BmbMonitor
 import spinal.lib.bus.misc.{AddressMapping, SizeMapping}
 import spinal.lib.bus.simple.{PipelinedMemoryBus, PipelinedMemoryBusDecoder}
-import spinal.lib.com.eth.{MacEthParameter, Mii, MiiParameter, MiiRxParameter, MiiTxParameter, PhyParameter}
+import spinal.lib.com.eth._
 import spinal.lib.com.i2c.{I2cMasterMemoryMappedGenerics, I2cSlaveGenerics, I2cSlaveMemoryMappedGenerics}
 import spinal.lib.com.i2c.sim.OpenDrainInterconnect
 import spinal.lib.com.jtag.{Jtag, JtagTap, JtagTapInstructionCtrl}
@@ -117,7 +117,7 @@ class ArtyA7SmpLinuxSystem() extends VexRiscvSmpGenerator{
 
   val mac = BmbMacEthGenerator(0x40000)
   mac.connectInterrupt(plic, 3)
-  val eth = mac.withPhyMii()
+  val eth = mac.withPhyRmii()
 }
 
 class ArtyA7SmpLinux extends Generator{
@@ -182,7 +182,7 @@ class ArtyA7SmpLinux extends Generator{
         "CLKOUT3_PHASE" -> 0,
         "CLKOUT4_DIVIDE" -> 4,
         "CLKOUT4_PHASE" -> 90,
-        "CLKOUT5_DIVIDE" -> 48,
+        "CLKOUT5_DIVIDE" -> 24,
         "CLKOUT5_PHASE" -> 0
       )
 
@@ -206,8 +206,11 @@ class ArtyA7SmpLinux extends Generator{
     pll.CLKFBIN := pll.CLKFBOUT
     pll.CLKIN1 := GCLK100
 
-    val clk25 = out Bool()
-    clk25 := pll.CLKOUT5
+    val clk50 = out Bool()
+    clk50 := pll.CLKOUT5
+    //system.mac.txCd.load(ClockDomain(pll.CLKOUT5, config = ClockDomainConfig(clockEdge = FALLING)))
+    system.mac.txCd.load(ClockDomain(pll.CLKOUT5))
+    system.mac.rxCd.load(ClockDomain(pll.CLKOUT5))
 
     debugCd.setInput(
       ClockDomain(
@@ -581,8 +584,8 @@ object ArtyA7SmpLinuxSystemSim {
 //      }
 
       fork{
-        val txCd = ClockDomain(dut.eth.mii.TX.CLK)
-        txCd.forkStimulus(40000)
+        //val txCd = ClockDomain(dut.eth.mii.TX.CLK)
+        //txCd.forkStimulus(40000)
       }
     }
   }

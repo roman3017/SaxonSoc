@@ -29,7 +29,11 @@ object NexysA7SmpLinux {
       readLatencies = List(5+3, 5+4)
     ))
 
-/*
+    system.gpioA.parameter load Gpio.Parameter(
+      width = 16,
+      interrupt = List(0, 1, 2, 3)
+    )
+//*
     system.mac.parameter load MacEthParameter(
       phy = PhyParameter(
         txDataWidth = 2,
@@ -40,7 +44,7 @@ object NexysA7SmpLinux {
       txDataWidth = 32,
       txBufferByteSize = 4096
     )
-*/
+//*/
 
     system.ramA.hexInit.load("software/standalone/bootloader/build/bootloader.hex")
     g

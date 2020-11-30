@@ -24,6 +24,11 @@ saxon_bitstream(){
   make all
 }
 
+saxon_bitstream_symbiflow(){
+  cd $SAXON_SOC/hardware/synthesis/digilent/ArtyA7SmpLinux
+  make -f symbiflow.mk
+}
+
 saxon_serial(){
   picocom -b 115200 /dev/ttyUSB1 --imap lfcrlf
 }
